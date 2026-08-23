@@ -55,7 +55,7 @@ export default function AdminOrderDetailPage() {
   const shippingCost = order.total - subtotal > 0 ? order.total - subtotal : 0;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto px-3">
       {/* Back Link & Header */}
       <div>
         <Link

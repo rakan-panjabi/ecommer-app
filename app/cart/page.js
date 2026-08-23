@@ -9,9 +9,9 @@ import toast from "react-hot-toast";
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
 
-  // কোয়ান্টিটি আপডেট হ্যান্ডলার উইথ স্টক ভ্যালিডেশন
+  // কোয়ান্টিটি আপডেট হ্যান্ডলার উইথ স্টক ভ্যালিডেশন
   const handleQuantityChange = (item, newQuantity) => {
-    // যদি স্টক প্রপার্টি থাকে এবং নতুন কোয়ান্টিটি স্টকের চেয়ে বেশি হয়
+    // যদি স্টক প্রপার্টি থাকে এবং নতুন কোয়ান্টিটি স্টকের চেয়ে বেশি হয়
     if (item.stock !== undefined && newQuantity > item.stock) {
       toast.error(`Only ${item.stock} items available in stock!`);
       return;
@@ -23,7 +23,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-24 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24 text-center">
         <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400 text-3xl">
           🛒
         </div>
@@ -44,9 +44,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8 min-h-screen">
       <div className="border-b border-slate-100 pb-6">
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Your Shopping Cart
         </h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -94,7 +94,9 @@ export default function CartPage() {
                     </p>
                     {item.stock !== undefined && (
                       <p
-                        className={`text-[11px] mt-1 font-medium ${isAtMaxStock ? "text-amber-600" : "text-slate-400"}`}
+                        className={`text-[11px] mt-1 font-medium ${
+                          isAtMaxStock ? "text-amber-600" : "text-slate-400"
+                        }`}
                       >
                         {isAtMaxStock
                           ? "Maximum stock reached"
@@ -104,14 +106,14 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between w-full sm:w-auto gap-6 border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-100">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-4 sm:gap-6 border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-100">
                   {/* Quantity Controls */}
                   <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden p-0.5">
                     <button
                       onClick={() =>
                         handleQuantityChange(item, item.quantity - 1)
                       }
-                      className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all"
+                      className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all cursor-pointer"
                     >
                       −
                     </button>
@@ -123,7 +125,7 @@ export default function CartPage() {
                         handleQuantityChange(item, item.quantity + 1)
                       }
                       disabled={isAtMaxStock}
-                      className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       +
                     </button>
@@ -132,7 +134,7 @@ export default function CartPage() {
                   {/* Remove Button */}
                   <button
                     onClick={() => removeFromCart(item.productId)}
-                    className="text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition-all"
+                    className="text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition-all cursor-pointer"
                   >
                     Remove
                   </button>
@@ -143,7 +145,7 @@ export default function CartPage() {
         </div>
 
         {/* Order Summary Card */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6 sticky top-24">
+        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-6 lg:sticky lg:top-24">
           <h2 className="font-bold text-lg text-slate-900 border-b border-slate-100 pb-4">
             Order Summary
           </h2>
@@ -172,7 +174,7 @@ export default function CartPage() {
 
           <Link
             href="/checkout"
-            className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm text-center block"
+            className="w-full py-3.5 bg-slate-900 text-white rounded-2xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm text-center block cursor-pointer"
           >
             Proceed to Checkout
           </Link>

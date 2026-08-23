@@ -10,9 +10,12 @@ export default function AdminLayout({ children }) {
   if (isLogin) return <div className="min-h-[80vh]">{children}</div>;
 
   return (
-    <div className="min-h-[80vh] max-w-7xl mx-auto py-8 grid md:grid-cols-[220px_1fr] gap-8">
-      <AdminSidebar />
-      <div>{children}</div>
+    <div className="min-h-[80vh] max-w-7xl mx-auto py-6 grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 md:gap-8">
+      {/* Sidebar: Mobile এ ফুল উইথ বা ড্রপডাউন হিসেবে কাজ করবে, ডেসিমাল স্ক্রিনে সাইডবার থাকবে */}
+      <aside className="w-full">
+        <AdminSidebar />
+      </aside>
+      <main className="w-full overflow-x-hidden">{children}</main>
     </div>
   );
 }

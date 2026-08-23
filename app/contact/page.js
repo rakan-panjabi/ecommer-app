@@ -33,11 +33,11 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="bg-slate-50/50 py-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-slate-50/50 py-8 md:py-12 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Heading */}
-        <div className="text-center mb-8">
-          <h2 className="inline-block bg-brand/10 text-brand px-3 py-1 rounded-full font-semibold text-lg uppercase tracking-wider mb-2">
+        <div className="text-center">
+          <h2 className="inline-block bg-brand/10 text-brand px-4 py-1.5 rounded-full font-semibold text-sm md:text-base uppercase tracking-wider mb-2 border border-brand/20">
             Get in Touch
           </h2>
         </div>
@@ -47,7 +47,7 @@ export default function ContactPage() {
           {/* Left Column: Info & Map (1 span) */}
           <div className="lg:col-span-1 space-y-6">
             {/* Info Card */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
               <h3 className="text-xl font-bold text-slate-900 tracking-tight">
                 Contact Information
               </h3>
@@ -59,8 +59,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-slate-900">Our Location</p>
-                    <p className="mt-0.5">
-                      West Nakhalpara , Baitul Atik Jam-E-Masjid (Chapra Masjid), Tejgaon, dhaka-1215
+                    <p className="mt-0.5 leading-relaxed">
+                      West Nakhalpara, Baitul Atik Jam-E-Masjid (Chapra Masjid),
+                      Tejgaon, Dhaka-1215
                     </p>
                   </div>
                 </div>
@@ -83,14 +84,14 @@ export default function ContactPage() {
                     <p className="font-semibold text-slate-900">
                       Email Address
                     </p>
-                    <p className="mt-0.5">rakanfabric@gmail.com</p>
+                    <p className="mt-0.5 break-all">rakanfabric@gmail.com</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Google Map Box */}
-            <div className="bg-white p-3 rounded-3xl shadow-sm border border-slate-100 overflow-hidden h-64">
+            <div className="bg-white p-3 rounded-3xl shadow-sm border border-slate-100 overflow-hidden h-64 sm:h-72">
               <iframe
                 title="Google Map"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.4587913701816!2d90.39048067605857!3d23.766671588150235!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c75e3a504fc7%3A0xe670fbaad6eba44!2sBaitul%20Atik%20Jam-E-Masjid%20(Chapra%20Masjid)!5e0!3m2!1sen!2sbd!4v1787511653772!5m2!1sen!2sbd"
@@ -106,7 +107,7 @@ export default function ContactPage() {
           </div>
 
           {/* Right Column: Form (2 span) */}
-          <div className="lg:col-span-2 bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-slate-100">
+          <div className="lg:col-span-2 bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-slate-100">
             {status === "success" ? (
               <div className="text-center py-16 space-y-4">
                 <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
@@ -128,9 +129,14 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-4">
-                  Send us a Message
-                </h3>
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+                    Send us a Message
+                  </h3>
+                  <p className="text-slate-500 text-sm mt-1">
+                    Fill out the form below and our team will respond shortly.
+                  </p>
+                </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -199,7 +205,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="w-full py-3.5 bg-brand-accent text-white rounded-xl font-semibold shadow-lg shadow-brand-accent/20 hover:opacity-90 transition-all disabled:opacity-50"
+                  className="w-full py-3.5 bg-brand-accent text-white rounded-xl font-semibold shadow-lg shadow-brand-accent/20 hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {status === "loading" ? "Sending Message..." : "Send Message"}
                 </button>

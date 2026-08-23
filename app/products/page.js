@@ -4,7 +4,9 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-async function getProducts(searchParams) {
+const PRODUCTS_PER_PAGE = 20;
+
+async function getProducts(searchParams, page = 1) {
   const where = {};
   if (searchParams.category && searchParams.category !== "all") {
     where.category = searchParams.category;
@@ -15,7 +17,24 @@ async function getProducts(searchParams) {
       { description: { contains: searchParams.q, mode: "insensitive" } },
     ];
   }
-  return prisma.product.findMany({ where, orderBy: { createdAt: "desc" } });
+
+  const skip = (page - 1) * PRODUCTS_PER_PAGE;
+
+  const [products, totalCount] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: PRODUCTS_PER_PAGE,
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return {
+    products,
+    totalCount,
+    totalPages: Math.ceil(totalCount / PRODUCTS_PER_PAGE),
+  };
 }
 
 async function getCategories() {
@@ -27,30 +46,49 @@ async function getCategories() {
 
 export default async function ProductsPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
+  const currentPage = Number(resolvedSearchParams.page) || 1;
 
-  const [products, categories] = await Promise.all([
-    getProducts(resolvedSearchParams),
+  const [{ products, totalCount, totalPages }, categories] = await Promise.all([
+    getProducts(resolvedSearchParams, currentPage),
     getCategories(),
   ]);
+
   const activeCategory = resolvedSearchParams.category || "all";
   const searchQuery = resolvedSearchParams.q || "";
 
+  // Helper function to build pagination URLs retaining search/category params
+  const createPageUrl = (pageNumber) => {
+    const params = new URLSearchParams();
+    if (activeCategory !== "all") params.set("category", activeCategory);
+    if (searchQuery) params.set("q", searchQuery);
+    params.set("page", pageNumber.toString());
+    return `/products?${params.toString()}`;
+  };
+
+  const isManyCategories = categories.length > 7;
+
   return (
-    <div className=" mx-auto space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 py-8 md:py-12">
       {/* Header Banner Section */}
-      <div className="text-center mb-4 mt-12">
-        <h2 className="inline-block bg-brand/10 text-brand px-3 py-1 rounded-full font-semibold text-lg uppercase tracking-wider mb-2">
+      <div className="text-center mb-6">
+        <h2 className="inline-block bg-brand-accent/10 text-brand-accent px-4 py-1.5 rounded-full font-bold text-xs sm:text-sm uppercase tracking-wider mb-2">
           Rakan Store Collection
         </h2>
       </div>
 
       {/* Search & Filters Bar */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-stretch lg:items-center justify-between bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm">
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm">
+        {/* Category Pills / Dynamic Design based on count (> 7) */}
+        <div
+          className={
+            isManyCategories
+              ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-2 lg:pb-0 w-full lg:w-auto"
+              : "flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar"
+          }
+        >
           <Link
             href="/products"
-            className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-sm ${
+            className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-bold text-center whitespace-nowrap transition-all shadow-sm ${
               activeCategory === "all"
                 ? "bg-slate-900 text-white shadow-slate-900/20"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -64,7 +102,7 @@ export default async function ProductsPage({ searchParams }) {
               href={`/products?category=${encodeURIComponent(c)}${
                 searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ""
               }`}
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-sm ${
+              className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs font-bold text-center whitespace-nowrap transition-all shadow-sm ${
                 activeCategory === c
                   ? "bg-slate-900 text-white shadow-slate-900/20"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -100,9 +138,9 @@ export default async function ProductsPage({ searchParams }) {
       </div>
 
       {/* Products Grid or Empty State */}
-      <div className="mb-8 max-w-7xl mx-auto">
+      <div className="mb-12 space-y-8">
         {products.length === 0 ? (
-          <div className="py-24 text-center bg-white border border-slate-100 rounded-3xl shadow-sm space-y-3 mb-8">
+          <div className="py-20 text-center bg-white border border-slate-100 rounded-3xl shadow-sm space-y-3 px-4">
             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-2xl text-slate-400 shadow-inner">
               📦
             </div>
@@ -116,18 +154,58 @@ export default async function ProductsPage({ searchParams }) {
             <div className="pt-2">
               <Link
                 href="/products"
-                className="inline-block px-5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm"
+                className="inline-block px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-sm"
               >
                 Reset Filters
               </Link>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+
+            {/* Pagination Controls (Appears only if total products > 20 and totalPages > 1) */}
+            {totalCount > PRODUCTS_PER_PAGE && totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-6">
+                {/* Previous Page Button */}
+                {currentPage > 1 ? (
+                  <Link
+                    href={createPageUrl(currentPage - 1)}
+                    className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
+                  >
+                    ← Previous
+                  </Link>
+                ) : (
+                  <span className="px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-400 cursor-not-allowed">
+                    ← Previous
+                  </span>
+                )}
+
+                {/* Page Indicator */}
+                <span className="px-4 py-2 text-xs font-semibold text-slate-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                {/* Next Page Button */}
+                {currentPage < totalPages ? (
+                  <Link
+                    href={createPageUrl(currentPage + 1)}
+                    className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
+                  >
+                    Next →
+                  </Link>
+                ) : (
+                  <span className="px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-400 cursor-not-allowed">
+                    Next →
+                  </span>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -47,9 +47,9 @@ export default function HeroSlider() {
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
-            <div className="max-w-7xl mx-auto py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center min-h-[440px] bg-black">
-              {/* Text Content */}
-              <div className="z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-24 grid md:grid-cols-2 gap-10 items-center min-h-[300px] md:min-h-[440px] bg-black">
+              {/* Text Content: Hidden on Mobile, Visible from Tablet (md) upwards */}
+              <div className="hidden md:block z-10">
                 <span className="inline-block bg-brand-accent/20 text-brand-accent px-3 py-1 rounded-full font-semibold mb-4 uppercase tracking-wider text-xs">
                   {slide.tag}
                 </span>
@@ -67,8 +67,8 @@ export default function HeroSlider() {
                 </Link>
               </div>
 
-              {/* Image Content */}
-              <div className="hidden md:block relative h-80 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+              {/* Image Content: Visible on ALL devices (Mobile gets full image view, Desktop gets side-by-side) */}
+              <div className="relative h-64 sm:h-80 md:h-80 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group w-full col-span-1 md:col-span-1">
                 <img
                   src={slide.image}
                   alt={slide.title}

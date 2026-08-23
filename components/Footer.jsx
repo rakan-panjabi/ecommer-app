@@ -7,7 +7,7 @@ async function getCategories() {
     const products = await prisma.product.findMany({
       select: { category: true },
     });
-    // ইউনিক ক্যাটেগরি বের করে শুধু প্রথম ৪/৫টি নেওয়া হলো
+    // ইউনিক ক্যাটেগরি বের করে শুধু প্রথম ৪/৫টি নেওয়া হলো
     const uniqueCategories = [
       ...new Set(products.map((p) => p.category)),
     ].filter(Boolean);
@@ -23,9 +23,9 @@ export default async function Footer() {
 
   return (
     <footer className="bg-black text-slate-300 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
         {/* Brand & Bio */}
-        <div className="md:col-span-1 space-y-4">
+        <div className="space-y-4 sm:col-span-2 md:col-span-1">
           <Link href="/" className="inline-block">
             <Image
               src="/logo.png"
@@ -42,8 +42,8 @@ export default async function Footer() {
         </div>
 
         {/* Quick Links */}
-        <div>
-          <h4 className="text-white font-semibold mb-4 text-base tracking-wide">
+        <div className="space-y-4">
+          <h4 className="text-white font-semibold text-base tracking-wide">
             Quick Links
           </h4>
           <ul className="space-y-2.5 text-sm">
@@ -75,8 +75,8 @@ export default async function Footer() {
         </div>
 
         {/* Dynamic Categories (Max 4-5 items) */}
-        <div>
-          <h4 className="text-white font-semibold mb-4 text-base tracking-wide">
+        <div className="space-y-4">
+          <h4 className="text-white font-semibold text-base tracking-wide">
             Categories
           </h4>
           <ul className="space-y-2.5 text-sm">
@@ -94,20 +94,20 @@ export default async function Footer() {
         </div>
 
         {/* Contact Info */}
-        <div>
-          <h4 className="text-white font-semibold mb-4 text-base tracking-wide">
+        <div className="space-y-4 sm:col-span-2 md:col-span-1">
+          <h4 className="text-white font-semibold text-base tracking-wide">
             Contact Us
           </h4>
           <div className="space-y-3 text-sm text-slate-400">
             <p className="flex items-start gap-2">
-              <span className="text-brand-accent mt-0.5">📍</span>
+              <span className="text-brand-accent mt-0.5 shrink-0">📍</span>
               <span>
                 West Nakhalpara , Baitul Atik Jam-E-Masjid (Chapra Masjid),
                 Tejgaon, dhaka-1215
               </span>
             </p>
             <p className="flex items-center gap-2">
-              <span className="text-brand-accent">📞</span>
+              <span className="text-brand-accent shrink-0">📞</span>
               <a
                 href="tel:01577128893"
                 className="hover:text-white transition-colors"
@@ -116,10 +116,10 @@ export default async function Footer() {
               </a>
             </p>
             <p className="flex items-center gap-2">
-              <span className="text-brand-accent">✉️</span>
+              <span className="text-brand-accent shrink-0">✉️</span>
               <a
                 href="mailto:rakanfabric@gmail.com"
-                className="hover:text-white transition-colors"
+                className="hover:text-white transition-colors break-all"
               >
                 rakanfabric@gmail.com
               </a>
@@ -129,8 +129,8 @@ export default async function Footer() {
       </div>
 
       {/* Copyright Bottom Bar */}
-      <div className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="border-t border-slate-800 py-6 text-center text-xs text-slate-400 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>
             © {new Date().getFullYear()}{" "}
             <strong className="text-white">Rakan</strong>. All rights reserved.

@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart,updateQuantity } = useCart();
+  const { items, totalPrice, clearCart, updateQuantity } = useCart();
   const router = useRouter();
   const [form, setForm] = useState({
     customerName: "",
@@ -67,13 +67,19 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto py-20 text-center">
-        <h1 className="text-2xl font-bold text-slate-900 mb-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-400 text-3xl">
+          🛒
+        </div>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
           Your cart is empty
         </h1>
+        <p className="text-slate-500 text-sm mb-8">
+          Looks like you haven&apos;t added anything to your cart yet.
+        </p>
         <Link
           href="/products"
-          className="inline-block px-6 py-3 bg-slate-900 text-white rounded-xl font-medium text-sm hover:bg-slate-800 transition-colors"
+          className="inline-flex items-center justify-center px-6 py-3 bg-slate-900 text-white rounded-xl font-semibold text-sm hover:bg-slate-800 transition-all shadow-sm"
         >
           Browse Products
         </Link>
@@ -82,18 +88,27 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-12 max-w-6xl">
-      <h1 className="text-3xl font-extrabold text-slate-900 mb-8">Checkout</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="border-b border-slate-100 pb-6 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          Checkout
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Complete your details to finish your order.
+        </p>
+      </div>
 
-      <div className="grid lg:grid-cols-3 gap-10 items-start">
+      <div className="grid lg:grid-cols-3 gap-8 items-start">
         {/* Billing & Shipping Form */}
         <form
           onSubmit={handleSubmit}
-          className="lg:col-span-2 space-y-6 bg-white p-8 rounded-3xl border border-slate-100 shadow-sm"
+          className="lg:col-span-2 space-y-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm"
         >
-          <h2 className="text-xl font-bold text-slate-900">Shipping Details</h2>
+          <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-4">
+            Shipping Details
+          </h2>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Full Name
@@ -103,7 +118,7 @@ export default function CheckoutPage() {
                 name="customerName"
                 value={form.customerName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 text-sm"
                 placeholder="John Doe"
               />
             </div>
@@ -116,13 +131,13 @@ export default function CheckoutPage() {
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 text-sm"
                 placeholder="017xxxxxxxx"
               />
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Email Address
@@ -133,7 +148,7 @@ export default function CheckoutPage() {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 text-sm"
                 placeholder="john@example.com"
               />
             </div>
@@ -146,7 +161,7 @@ export default function CheckoutPage() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 text-sm"
                 placeholder="Dhaka"
               />
             </div>
@@ -162,7 +177,7 @@ export default function CheckoutPage() {
               value={form.address}
               onChange={handleChange}
               rows={3}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand text-sm resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 text-sm resize-none"
               placeholder="House, Road, Area, Thana..."
             />
           </div>
@@ -172,9 +187,13 @@ export default function CheckoutPage() {
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Delivery Charge
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label
-                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${shippingArea === "inside" ? "border-slate-900 bg-slate-50 font-medium" : "border-slate-200"}`}
+                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                  shippingArea === "inside"
+                    ? "border-slate-900 bg-slate-50 font-medium"
+                    : "border-slate-200"
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -190,7 +209,11 @@ export default function CheckoutPage() {
               </label>
 
               <label
-                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${shippingArea === "outside" ? "border-slate-900 bg-slate-50 font-medium" : "border-slate-200"}`}
+                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                  shippingArea === "outside"
+                    ? "border-slate-900 bg-slate-50 font-medium"
+                    : "border-slate-200"
+                }`}
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -235,7 +258,7 @@ export default function CheckoutPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50"
+            className="w-full py-4 bg-slate-900 text-white rounded-xl font-semibold shadow-md hover:bg-slate-800 transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading
               ? "Placing Order..."
@@ -244,8 +267,10 @@ export default function CheckoutPage() {
         </form>
 
         {/* Order Summary Sidebar */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm h-fit space-y-4">
-          <h2 className="font-bold text-lg text-slate-900">Order Summary</h2>
+        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm lg:sticky lg:top-24 space-y-4">
+          <h2 className="font-bold text-lg text-slate-900 border-b border-slate-100 pb-4">
+            Order Summary
+          </h2>
 
           <div className="space-y-3 divide-y divide-slate-100 max-h-60 overflow-y-auto pr-1">
             {items.map((item) => {
@@ -274,7 +299,7 @@ export default function CheckoutPage() {
                         onClick={() =>
                           updateQuantity(item.productId, item.quantity - 1)
                         }
-                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all text-xs"
+                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all text-xs cursor-pointer"
                       >
                         −
                       </button>
@@ -287,7 +312,7 @@ export default function CheckoutPage() {
                           updateQuantity(item.productId, item.quantity + 1)
                         }
                         disabled={isAtMaxStock}
-                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all text-xs disabled:opacity-45 disabled:cursor-not-allowed"
+                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-white rounded-lg font-bold transition-all text-xs disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
                       >
                         +
                       </button>
@@ -302,18 +327,22 @@ export default function CheckoutPage() {
             })}
           </div>
 
-          <div className="border-t border-slate-200 pt-4 space-y-2 text-sm">
+          <div className="border-t border-slate-100 pt-4 space-y-2 text-sm">
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
-              <span className="font-medium">{formatPrice(totalPrice)}</span>
+              <span className="font-medium text-slate-900">
+                {formatPrice(totalPrice)}
+              </span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Shipping Fee</span>
-              <span className="font-medium">{formatPrice(shippingCost)}</span>
+              <span className="font-medium text-slate-900">
+                {formatPrice(shippingCost)}
+              </span>
             </div>
           </div>
 
-          <div className="border-t border-slate-200 pt-4 flex justify-between font-bold text-lg text-slate-900">
+          <div className="border-t border-slate-100 pt-4 flex justify-between font-extrabold text-lg text-slate-900">
             <span>Total Payable</span>
             <span>{formatPrice(finalTotal)}</span>
           </div>
