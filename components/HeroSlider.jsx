@@ -8,40 +8,59 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
-const slides = [
-  {
-    tag: "Eid Collection",
-    title: "Premium Panjabi for Your Festive Elegance.",
-    desc: "Discover our exclusive, comfortable, and trendy Panjabi collection crafted for your special occasions.",
-    image: "https://i.postimg.cc/85hmLzFF/3.avif",
-  },
-  {
-    tag: "New Arrivals",
-    title: "Traditional Craftsmanship Meets Modern Style.",
-    desc: "Elevate your ethnic wardrobe with finest fabrics and intricate embroidery designs.",
-    image: "https://i.postimg.cc/rmSN5wdz/4.png",
-  },
-  {
-    tag: "Exclusive Design",
-    title: "Sophisticated Panjabis for Every Celebration.",
-    desc: "Experience ultimate comfort and superior quality with our handpicked festive wear.",
-    image: "https://i.postimg.cc/d18jGV70/6.png",
-  },
-  {
-    tag: "Special Offer",
-    title: "Complete Your Sunnah Look This Season.",
-    desc: "Explore top-tier festive essentials shipped fast and priced fair.",
-    image: "https://i.postimg.cc/G20jByp8/8.png",
-  },
-];
+export default function HeroSlider({ categories = [] }) {
+  // Category Index 0 (Banner 1 / Main Slider): Ekhane category index 0 er products theke slides banabo
+  const cat0 = categories[0];
+  const mainSlides =
+    cat0?.products?.length > 0
+      ? cat0.products.slice(0, 3).map((product) => ({
+          tag: cat0.category,
+          title: product.name || `Explore Our Best ${cat0.category}`,
+          desc:
+            product.description ||
+            `Discover premium quality ${cat0.category} handpicked just for you.`,
+          image:
+            product.images?.[0] ||
+            product.image ||
+            "https://i.postimg.cc/85hmLzFF/3.avif",
+          category: cat0.category,
+        }))
+      : [
+          {
+            tag: "Collection",
+            title: "Premium Products for Your Festive Elegance.",
+            desc: "Discover our exclusive, comfortable, and trendy collection crafted for you.",
+            image: "https://i.postimg.cc/85hmLzFF/3.avif",
+            category: "all",
+          },
+        ];
 
-export default function HeroSlider() {
+  // Category Index 1 (Banner 2) ebong Category Index 2 (Banner 3)
+  const cat1 = categories[1];
+  const cat2 = categories[2];
+
+  // Banner 2 data (Category Index 1er prothom product)
+  const banner2Product = cat1?.products?.[0];
+  const banner2Image =
+    banner2Product?.images?.[0] ||
+    banner2Product?.image ||
+    "https://i.postimg.cc/4dC1K93n/10.jpg";
+  const banner2Title = cat1?.category || "Featured Collection";
+
+  // Banner 3 data (Category Index 2er prothom product)
+  const banner3Product = cat2?.products?.[0];
+  const banner3Image =
+    banner3Product?.images?.[0] ||
+    banner3Product?.image ||
+    "https://i.postimg.cc/Ss0GXMx5/21.webp";
+  const banner3Title = cat2?.category || "Special Essentials";
+
   return (
     <section className="relative text-white overflow-hidden py-4 md:py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-12 gap-4 lg:gap-6 items-center">
-          {/* Left: Main Slider (8 Columns) */}
-          <div className="col-span-12 lg:col-span-8  overflow-hidden shadow-xl border border-white/10 bg-black">
+          {/* Left: Main Slider (Banner 1 - Category Index 0 products) */}
+          <div className="col-span-12 lg:col-span-8 overflow-hidden shadow-xl border border-white/10 bg-black">
             <Swiper
               modules={[Autoplay, Pagination, Navigation, EffectFade]}
               effect={"fade"}
@@ -55,7 +74,7 @@ export default function HeroSlider() {
               navigation={true}
               className="hero-swiper"
             >
-              {slides.map((slide, index) => (
+              {mainSlides.map((slide, index) => (
                 <SwiperSlide key={index}>
                   <div className="relative min-h-[380px] sm:min-h-[420px] lg:min-h-[460px] flex items-center p-6 sm:p-10 lg:p-12">
                     {/* Background Image with Overlay */}
@@ -70,7 +89,7 @@ export default function HeroSlider() {
 
                     {/* Content */}
                     <div className="relative z-10 max-w-lg">
-                      <span className="inline-block bg-brand-accent text-black px-3.5 py-1 rounded-full font-semibold mb-4 uppercase tracking-wider text-xs shadow-sm">
+                      <span className="inline-block bg-amber-400 text-black px-3.5 py-1 rounded-full font-semibold mb-4 uppercase tracking-wider text-xs shadow-sm">
                         {slide.tag}
                       </span>
                       <h1 className="text-2xl sm:text-4xl lg:text-4xl font-extrabold leading-tight mb-3 tracking-tight line-clamp-2">
@@ -80,8 +99,8 @@ export default function HeroSlider() {
                         {slide.desc}
                       </p>
                       <Link
-                        href="/products?category=panjabi"
-                        className="inline-flex items-center gap-2 bg-white text-black px-6 py-3  font-semibold shadow-lg hover:bg-brand-accent hover:text-white transition-all transform hover:-translate-y-0.5"
+                        href={`/products?category=${encodeURIComponent(slide.category)}`}
+                        className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 font-semibold shadow-lg hover:bg-amber-400 hover:text-white transition-all transform hover:-translate-y-0.5"
                       >
                         Shop Collection →
                       </Link>
@@ -92,50 +111,50 @@ export default function HeroSlider() {
             </Swiper>
           </div>
 
-          {/* Right: 2 Promotional Banners (4 Columns) -> Attar & Tupi */}
+          {/* Right: 2 Promotional Banners (Banner 2 & Banner 3 -> Category Index 1 & 2) */}
           <div className="col-span-12 lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-4 h-full">
-            {/* Banner 1: Attar */}
-            <div className="relative  overflow-hidden shadow-lg border border-white/10 group h-[180px] sm:h-[215px] lg:h-[222px] bg-slate-900">
+            {/* Banner 2 (Category Index 1) */}
+            <div className="relative overflow-hidden shadow-lg border border-white/10 group h-[180px] sm:h-[215px] lg:h-[222px] bg-slate-900">
               <img
-                src="https://i.postimg.cc/4dC1K93n/10.jpg"
-                alt="Premium Attar Collection"
+                src={banner2Image}
+                alt={banner2Title}
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 brightness-75"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-5">
                 <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
-                  Pure Fragrance
+                  Featured
                 </span>
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                  Exclusive Attar
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 capitalize">
+                  {banner2Title}
                 </h3>
                 <Link
-                  href="/products?category=perfume"
+                  href={`/products?category=${encodeURIComponent(banner2Title)}`}
                   className="text-xs font-semibold text-white underline underline-offset-4 hover:text-amber-400 transition-colors w-fit"
                 >
-                  Explore Perfume →
+                  Explore →
                 </Link>
               </div>
             </div>
 
-            {/* Banner 2: Tupi (Prayer Cap) */}
-            <div className="relative  overflow-hidden shadow-lg border border-white/10 group h-[180px] sm:h-[215px] lg:h-[222px] bg-slate-900">
+            {/* Banner 3 (Category Index 2) */}
+            <div className="relative overflow-hidden shadow-lg border border-white/10 group h-[180px] sm:h-[215px] lg:h-[222px] bg-slate-900">
               <img
-                src="https://i.postimg.cc/Ss0GXMx5/21.webp"
-                alt="Stylish Tupi Collection"
+                src={banner3Image}
+                alt={banner3Title}
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 brightness-75"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-5">
                 <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
-                  Sunnah Essentials
+                  Special
                 </span>
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                  Premium Tupi
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 capitalize">
+                  {banner3Title}
                 </h3>
                 <Link
-                  href="/products?category=Tupi"
+                  href={`/products?category=${encodeURIComponent(banner3Title)}`}
                   className="text-xs font-semibold text-white underline underline-offset-4 hover:text-amber-400 transition-colors w-fit"
                 >
-                  Explore Tupi →
+                  Explore →
                 </Link>
               </div>
             </div>

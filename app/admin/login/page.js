@@ -6,8 +6,8 @@ import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
   // ডেমো ইমেইল এবং পাসওয়ার্ড ইনিশিয়ালি সেট করে দেওয়া হলো
-  const [email, setEmail] = useState("admin@gmail.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all text-sm"
-              placeholder="admin@gmail.com"
+              placeholder="Write your email"
             />
           </div>
           <div>

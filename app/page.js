@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import HeroSlider from "@/components/HeroSlider";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import ValueProps from "@/components/ValueProps";
-import CategorySliderSection from "@/components/CategorySliderSection"; 
+import CategorySliderSection from "@/components/CategorySliderSection";
 
 export const revalidate = 60;
 
@@ -29,7 +29,6 @@ async function getHomeData() {
       }
     });
 
-    // ক্যাটেগরিগুলোকে A থেকে Z ক্রমানুসারে সর্ট করা
     const validCategorySections = Object.entries(categoryMap)
       .map(([category, products]) => ({
         category,
@@ -37,30 +36,37 @@ async function getHomeData() {
       }))
       .sort((a, b) => a.category.localeCompare(b.category));
 
+    // Prothom 5ta category hero section-er jonno (Index 0 theke 4)
+    const heroCategories = validCategorySections.slice(0, 5);
+
     return {
       featuredProducts,
       validCategorySections,
+      heroCategories,
     };
   } catch (error) {
     console.error("Failed to fetch home data:", error);
-    return { featuredProducts: [], validCategorySections: [] };
+    return {
+      featuredProducts: [],
+      validCategorySections: [],
+      heroCategories: [],
+    };
   }
 }
 
 export default async function HomePage() {
-  const { featuredProducts, validCategorySections } = await getHomeData();
+  const { featuredProducts, validCategorySections, heroCategories } =
+    await getHomeData();
 
   return (
     <div className="bg-white">
-      {/* হিরো স্লাইডার */}
-      <HeroSlider />
+      {/* 5ta category props akare pass kora holo */}
+      <HeroSlider categories={heroCategories} />
 
-      {/* ফিচারড প্রোডাক্টস সেকশন */}
       {featuredProducts.length > 0 && (
         <FeaturedProducts products={featuredProducts} />
       )}
 
-      {/* ক্যাটেগরি অনুযায়ী স্লাইডার সেকশন */}
       {validCategorySections.map(({ category, products }) => (
         <CategorySliderSection
           key={category}
@@ -69,7 +75,6 @@ export default async function HomePage() {
         />
       ))}
 
-      {/* ভ্যালু প্রপস */}
       <ValueProps />
     </div>
   );
