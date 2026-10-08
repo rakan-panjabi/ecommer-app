@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { formatPrice, formatDate } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 const STATUS_BADGES = {
   PENDING: "bg-amber-50 text-amber-700 border-amber-200",
@@ -10,40 +11,38 @@ const STATUS_BADGES = {
   SHIPPED: "bg-purple-50 text-purple-700 border-purple-200",
   DELIVERED: "bg-emerald-50 text-emerald-700 border-emerald-200",
   CANCELLED: "bg-red-50 text-red-700 border-red-200",
+  RETURNED: "bg-orange-50 text-orange-700 border-orange-200",
+  REFUNDED: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
-export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState([]);
-  const [status, setStatus] = useState("all");
-  const [loading, setLoading] = useState(true);
+// ফেচ ফাংশন (React Query এর জন্য)
+async function fetchOrders({ queryKey }) {
+  const [, status, page] = queryKey;
+  const res = await fetch(`/api/orders?status=${status}&page=${page}&limit=5`);
+  if (!res.ok) throw new Error("Failed to fetch orders");
+  return res.json();
+}
 
-  // Pagination states
+export default function AdminOrdersPage() {
+  const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    totalPages: 1,
-    limit: 5,
+
+  // React Query দিয়ে ডাটা ফেচিং এবং ক্যাশ হ্যান্ডলিং
+  const { data, isLoading, isPlaceholderData } = useQuery({
+    queryKey: ["admin-orders", status, page],
+    queryFn: fetchOrders,
+    keepPreviousData: true, // পেজ বা ফিল্টার বদলালে আগের ডাটা ধরে রেখে স্মুথ ট্রানজিশন দেয়
+    staleTime: 1000 * 60 * 3, // ৩ মিনিট ক্যাশ স্টেল টাইম
   });
 
-  function loadOrders(pageNum = 1, currentStatus = status) {
-    setLoading(true);
-    fetch(`/api/orders?status=${currentStatus}&page=${pageNum}&limit=5`)
-      .then((res) => res.json())
-      .then((data) => {
-        setOrders(data?.data || []);
-        if (data?.pagination) {
-          setPagination(data.pagination);
-          setPage(data.pagination.page);
-        }
-        setLoading(false);
-      });
-  }
+  const orders = data?.data || [];
+  const pagination = data?.pagination || { total: 0, totalPages: 1, limit: 5 };
 
-  // স্ট্যাটাস পরিবর্তন হলে প্রথম পেজ থেকে ডাটা লোড হবে
-  useEffect(() => {
+  // স্ট্যাটাস পরিবর্তন হলে পেজ আবার ১ এ সেট করা
+  function handleStatusChange(e) {
+    setStatus(e.target.value);
     setPage(1);
-    loadOrders(1, status);
-  }, [status]);
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -65,7 +64,7 @@ export default function AdminOrdersPage() {
           </span>
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={handleStatusChange}
             className="bg-white border border-slate-200 text-slate-700 text-xs sm:text-sm font-medium rounded-xl px-3 sm:px-4 py-2 outline-none focus:border-slate-400 shadow-sm transition-all w-full sm:w-auto"
           >
             <option value="all">All Statuses</option>
@@ -74,13 +73,15 @@ export default function AdminOrdersPage() {
             <option value="SHIPPED">Shipped</option>
             <option value="DELIVERED">Delivered</option>
             <option value="CANCELLED">Cancelled</option>
+            <option value="RETURNED">Returned</option>
+            <option value="REFUNDED">Refunded</option>
           </select>
         </div>
       </div>
 
       {/* Orders Table Container */}
       <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-sm">
-        {loading ? (
+        {isLoading ? (
           <div className="py-16 text-center">
             <p className="text-slate-500 text-sm font-medium animate-pulse">
               Loading orders...
@@ -177,14 +178,16 @@ export default function AdminOrdersPage() {
                 </p>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                   <button
-                    onClick={() => loadOrders(page - 1, status)}
+                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
                     disabled={page <= 1}
                     className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => loadOrders(page + 1, status)}
+                    onClick={() =>
+                      setPage((p) => Math.min(p + 1, pagination.totalPages))
+                    }
                     disabled={page >= pagination.totalPages}
                     className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                   >

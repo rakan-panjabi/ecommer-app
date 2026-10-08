@@ -37,7 +37,7 @@ export function CartProvider({ children }) {
         return prev.map((i) =>
           i.productId === product.id
             ? { ...i, quantity: i.quantity + quantity }
-            : i
+            : i,
         );
       }
       return [
@@ -60,7 +60,7 @@ export function CartProvider({ children }) {
       return;
     }
     setItems((prev) =>
-      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i)),
     );
   }
 

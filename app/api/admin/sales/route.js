@@ -2,19 +2,22 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { MONTH_NAMES } from "@/lib/utils";
 
+// রাউটটিকে ডাইনামিক করার জন্য এটি আবশ্যিক
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
   try {
-    // ইউআরএল থেকে কুয়েরি প্যারামিটার (যেমন: status বা date filter) ধরার ব্যবস্থা
+    // ইউআরএল থেকে কুয়েরি প্যারামিটার (যেমন: status বা date filter) ধরার ব্যবস্থা
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status"); // যেমন: DELIVERED, PENDING, CANCELLED ইত্যাদি
 
-    // ডায়নামিক হোয়্যার ক্লজ (যদি ফিল্টার দেওয়া থাকে)
+    // ডায়নামিক হোয়্যার ক্লজ (যদি ফিল্টার দেওয়া থাকে)
     const whereCondition = {};
     if (statusFilter && statusFilter !== "ALL") {
       whereCondition.status = statusFilter;
     }
 
-    // ১. ফিল্টার অনুযায়ী অর্ডার ফেচ করা
+    // ১. ফিল্টার অনুযায়ী অর্ডার ফেচ করা
     const orders = await prisma.order.findMany({
       where: whereCondition,
       select: { total: true, createdAt: true, status: true },

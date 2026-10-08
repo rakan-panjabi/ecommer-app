@@ -4,9 +4,11 @@ import { CartProvider } from "@/lib/cart-context";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
+import GlobalLoader from "@/components/GlobalLoader";
+import PageTransition from "@/components/PageTransition";
+import Providers from "./providers";
 
 export const metadata = {
-  // Base URL for relative image paths in metadata (Update this to your real domain later)
   metadataBase: new URL("https://rakan-panjabi.com" || "https://rakan.com.bd"),
 
   title: {
@@ -62,22 +64,27 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-slate-50">
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-          }}
-        />
-        <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </CartProvider>
+      <body className="min-h-screen flex flex-col bg-slate-50 relative">
+        <Providers>
+          <GlobalLoader />
+          <PageTransition>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: "#333",
+                  color: "#fff",
+                },
+              }}
+            />
+            <CartProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </CartProvider>
+          </PageTransition>
+        </Providers>
       </body>
     </html>
   );

@@ -33,7 +33,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="bg-slate-50/50 py-8 md:py-12 min-h-screen">
+    <div className="bg-slate-50/50 py-8 md:py-12 ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Heading */}
         <div className="text-center">

@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
@@ -20,20 +20,28 @@ model Product {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
+
+  // পারফরম্যান্স অপ্টিমাইজেশনের জন্য ইনডেক্স যোগ করা হলো
+  @@index([category])
+  @@index([featured])
+  @@index([createdAt])
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  customerName  String
-  email         String
-  phone         String
-  address       String
-  city          String
-  status        OrderStatus @default(PENDING)
-  total         Float
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  items         OrderItem[]
+  id           String      @id @default(cuid())
+  customerName String
+  email        String
+  phone        String
+  address      String
+  city         String
+  status       OrderStatus @default(PENDING)
+  total        Float
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  items        OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -41,9 +49,12 @@ model OrderItem {
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade) 
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)  
   quantity  Int
   price     Float
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model ContactMessage {
@@ -61,4 +72,6 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  RETURNED   
+  REFUNDED   
 }

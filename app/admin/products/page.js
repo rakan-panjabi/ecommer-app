@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const emptyForm = {
   name: "",
@@ -23,39 +25,84 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+// ফেচ ফাংশন (React Query এর জন্য)
+async function fetchProducts(page) {
+  const res = await fetch(`/api/products?page=${page}&limit=5`);
+  if (!res.ok) throw new Error("Failed to fetch products");
+  return res.json();
+}
+
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingSlug, setEditingSlug] = useState(null);
   const [form, setForm] = useState(emptyForm);
-  const [saving, setSaving] = useState(false);
-
-  // Pagination states
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState({
-    total: 0,
-    totalPages: 1,
-    limit: 5,
+
+  // ১. React Query দিয়ে প্রোডাক্টস ফেচ এবং ক্যাশ হ্যান্ডলিং
+  const { data, isLoading, isPlaceholderData } = useQuery({
+    queryKey: ["admin-products", page],
+    queryFn: () => fetchProducts(page),
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
   });
 
-  function loadProducts(pageNum = 1) {
-    setLoading(true);
-    fetch(`/api/products?page=${pageNum}&limit=5`)
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data?.data || []);
-        if (data?.pagination) {
-          setPagination(data.pagination);
-          setPage(data.pagination.page);
-        }
-        setLoading(false);
-      });
-  }
+  const products = data?.data || [];
+  const pagination = data?.pagination || { total: 0, totalPages: 1, limit: 5 };
 
-  useEffect(() => {
-    loadProducts(page);
-  }, []);
+  // ২. সেভ বা আপডেট মিউটেশন
+  const saveMutation = useMutation({
+    mutationFn: async (formData) => {
+      const url = editingSlug
+        ? `/api/products/${editingSlug}`
+        : "/api/products";
+      const method = editingSlug ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+          stock: parseInt(formData.stock),
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to save product");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success(
+        editingSlug
+          ? "Product updated successfully!"
+          : "Product added successfully!",
+      );
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+      setShowForm(false);
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to save product");
+    },
+  });
+
+  // ৩. ডিলিট মিউটেশন
+  const deleteMutation = useMutation({
+    mutationFn: async (slug) => {
+      const res = await fetch(`/api/products/${slug}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete product");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Product deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to delete product");
+    },
+  });
 
   function openAddForm() {
     setForm(emptyForm);
@@ -69,49 +116,33 @@ export default function AdminProductsPage() {
     setShowForm(true);
   }
 
+  // ফিক্সড handleChange ফাংশন (ক্রিয়েট এবং এডিট উভয় ক্ষেত্রেই নাম বদলালে স্ল্যাগ আপডেট হবে)
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((f) => ({
-      ...f,
-      [name]: type === "checkbox" ? checked : value,
-      ...(name === "name" && !editingSlug ? { slug: slugify(value) } : {}),
-    }));
-  }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      if (editingSlug) {
-        await fetch(`/api/products/${editingSlug}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            price: parseFloat(form.price),
-            stock: parseInt(form.stock),
-          }),
-        });
-      } else {
-        await fetch("/api/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
+    setForm((prev) => {
+      const updated = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      // প্রোডাক্টের নাম পরিবর্তন করলে তা ক্রিয়েট হোক বা এডিট, স্ল্যাগ আপডেট হবে
+      if (name === "name") {
+        updated.slug = slugify(value);
       }
-      setShowForm(false);
-      loadProducts(page);
-    } catch (err) {
-      alert("Failed to save product");
-    } finally {
-      setSaving(false);
-    }
+
+      return updated;
+    });
   }
 
-  async function handleDelete(slug) {
+  function handleSubmit(e) {
+    e.preventDefault();
+    saveMutation.mutate(form);
+  }
+
+  function handleDelete(slug) {
     if (!confirm("Delete this product?")) return;
-    await fetch(`/api/products/${slug}`, { method: "DELETE" });
-    loadProducts(page);
+    deleteMutation.mutate(slug);
   }
 
   return (
@@ -270,10 +301,10 @@ export default function AdminProductsPage() {
             <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-slate-100">
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saveMutation.isPending}
                 className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-xs sm:text-sm hover:bg-slate-800 transition-all shadow-sm disabled:opacity-55"
               >
-                {saving ? "Saving..." : "Save Product"}
+                {saveMutation.isPending ? "Saving..." : "Save Product"}
               </button>
               <button
                 type="button"
@@ -289,7 +320,7 @@ export default function AdminProductsPage() {
 
       {/* Products Table Wrapper */}
       <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl shadow-sm">
-        {loading ? (
+        {isLoading ? (
           <div className="py-16 text-center">
             <p className="text-slate-500 text-xs sm:text-sm font-medium animate-pulse">
               Loading products...
@@ -301,7 +332,6 @@ export default function AdminProductsPage() {
           </div>
         ) : (
           <div className="w-full overflow-hidden">
-            {/* Scrollable container for table */}
             <div className="w-full max-w-full overflow-x-auto pb-1">
               <table className="w-full text-xs sm:text-sm text-left border-collapse min-w-max">
                 <thead>
@@ -374,7 +404,8 @@ export default function AdminProductsPage() {
                           </button>
                           <button
                             onClick={() => handleDelete(p.slug)}
-                            className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[11px] sm:text-xs font-semibold transition-all"
+                            disabled={deleteMutation.isPending}
+                            className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-[11px] sm:text-xs font-semibold transition-all disabled:opacity-50"
                           >
                             Delete
                           </button>
@@ -402,14 +433,16 @@ export default function AdminProductsPage() {
                 </p>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                   <button
-                    onClick={() => loadProducts(page - 1)}
+                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
                     disabled={page <= 1}
                     className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => loadProducts(page + 1)}
+                    onClick={() =>
+                      setPage((p) => Math.min(p + 1, pagination.totalPages))
+                    }
                     disabled={page >= pagination.totalPages}
                     className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
                   >

@@ -1,12 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice, formatDate } from "@/lib/utils";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
-const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+const STATUSES = [
+  "PENDING",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+  "RETURNED",
+  "REFUNDED",
+];
 
 const STATUS_BADGES = {
   PENDING: "bg-amber-50 text-amber-700 border-amber-200",
@@ -14,31 +23,53 @@ const STATUS_BADGES = {
   SHIPPED: "bg-purple-50 text-purple-700 border-purple-200",
   DELIVERED: "bg-emerald-50 text-emerald-700 border-emerald-200",
   CANCELLED: "bg-red-50 text-red-700 border-red-200",
+  RETURNED: "bg-orange-50 text-orange-700 border-orange-200",
+  REFUNDED: "bg-rose-50 text-rose-700 border-rose-200",
 };
+
+async function fetchOrderDetails({ queryKey }) {
+  const [, id] = queryKey;
+  const res = await fetch(`/api/orders/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch order details");
+  return res.json();
+}
 
 export default function AdminOrderDetailPage() {
   const { id } = useParams();
-  const [order, setOrder] = useState(null);
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetch(`/api/orders/${id}`)
-      .then((res) => res.json())
-      .then(setOrder);
-  }, [id]);
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["admin-order", id],
+    queryFn: fetchOrderDetails,
+    enabled: !!id,
+    staleTime: 1000 * 60 * 3,
+  });
 
-  async function handleStatusChange(newStatus) {
-    setSaving(true);
-    await fetch(`/api/orders/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    setOrder((o) => ({ ...o, status: newStatus }));
-    setSaving(false);
-  }
+  const updateStatusMutation = useMutation({
+    mutationFn: async (newStatus) => {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Failed to update status");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success("Order status updated successfully!");
 
-  if (!order) {
+      queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
+
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update status");
+    },
+  });
+
+  if (isLoading || !order) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-slate-500 font-medium animate-pulse">
@@ -81,9 +112,11 @@ export default function AdminOrderDetailPage() {
             </span>
             <select
               value={order.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              disabled={saving}
-              className={`bg-white border text-xs font-bold uppercase rounded-xl px-4 py-2.5 outline-none shadow-sm transition-all cursor-pointer ${STATUS_BADGES[order.status] || "border-slate-200 text-slate-700"}`}
+              onChange={(e) => updateStatusMutation.mutate(e.target.value)}
+              disabled={updateStatusMutation.isPending}
+              className={`bg-white border text-xs font-bold uppercase rounded-xl px-4 py-2.5 outline-none shadow-sm transition-all cursor-pointer disabled:opacity-50 ${
+                STATUS_BADGES[order.status] || "border-slate-200 text-slate-700"
+              }`}
             >
               {STATUSES.map((s) => (
                 <option

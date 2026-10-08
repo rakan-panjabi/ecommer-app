@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,35 +11,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { formatPrice } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+
+// ফেচ ফাংশন (React Query এর জন্য স্ট্যাটাস ফিল্টারসহ)
+async function fetchDashboardData({ queryKey }) {
+  const [, status] = queryKey;
+  const url =
+    status === "ALL" ? "/api/admin/sales" : `/api/admin/sales?status=${status}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch dashboard overview data");
+  return res.json();
+}
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL"); // ফিল্টার স্টেট
 
-  const fetchDashboardData = (status = "ALL") => {
-    setLoading(true);
-    const url =
-      status === "ALL"
-        ? "/api/admin/sales"
-        : `/api/admin/sales?status=${status}`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((d) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  };
+  // ১. React Query দিয়ে ড্যাশবোর্ড ডাটা ফেচিং এবং ক্যাশ হ্যান্ডলিং
+  const { data, isLoading, isPlaceholderData } = useQuery({
+    queryKey: ["admin-dashboard", statusFilter],
+    queryFn: fetchDashboardData,
+    placeholderData: (previousData) => previousData, // ফিল্টার বদলানোর সময় আগের ডেটা ধরে রেখে স্মুথ ট্রানজিশন দেয়
+    staleTime: 1000 * 60 * 3, // ৩ মিনিট পর্যন্ত ডেটা ফ্রেশ রাখবে
+  });
 
-  useEffect(() => {
-    fetchDashboardData(statusFilter);
-  }, [statusFilter]);
-
-  if (loading && !data) {
+  if (isLoading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-slate-500 font-medium animate-pulse">
@@ -49,7 +45,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const { monthly, summary } = data || {};
+  const { monthly = [], summary = {} } = data || {};
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -70,7 +66,8 @@ export default function AdminDashboardPage() {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              disabled={isPlaceholderData}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap disabled:opacity-70 ${
                 statusFilter === status
                   ? "bg-white text-slate-900 shadow-sm"
                   : "text-slate-500 hover:text-slate-900"
@@ -98,7 +95,7 @@ export default function AdminDashboardPage() {
           </div>
           <p className="text-sm font-medium text-slate-500">Total Revenue</p>
           <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-            {formatPrice(summary.totalRevenue)}
+            {formatPrice(summary.totalRevenue || 0)}
           </p>
         </div>
 
@@ -115,15 +112,15 @@ export default function AdminDashboardPage() {
           <p className="text-sm font-medium text-slate-500">Total Orders</p>
           <div className="flex items-baseline gap-2 mt-1">
             <p className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              {summary.totalOrders}
+              {summary.totalOrders || 0}
             </p>
           </div>
           <div className="flex items-center gap-2 mt-3 text-xs font-semibold">
             <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-              Delivered: {summary.deliveredOrders}
+              Delivered: {summary.deliveredOrders || 0}
             </span>
             <span className="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
-              Cancelled: {summary.cancelledOrders}
+              Cancelled: {summary.cancelledOrders || 0}
             </span>
           </div>
         </div>
@@ -140,12 +137,12 @@ export default function AdminDashboardPage() {
           </div>
           <p className="text-sm font-medium text-slate-500">Success Ratio</p>
           <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-            {summary.successRatio}
+            {summary.successRatio || "0%"}
           </p>
           <p className="text-xs text-slate-400 mt-2">
             Pending orders:{" "}
             <span className="font-semibold text-slate-600">
-              {summary.pendingOrders}
+              {summary.pendingOrders || 0}
             </span>
           </p>
         </div>
@@ -162,7 +159,7 @@ export default function AdminDashboardPage() {
           </div>
           <p className="text-sm font-medium text-slate-500">Avg. Order Value</p>
           <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-            {formatPrice(summary.avgOrderValue)}
+            {formatPrice(summary.avgOrderValue || 0)}
           </p>
         </div>
       </div>

@@ -23,7 +23,7 @@ export default async function Footer() {
 
   return (
     <footer className="bg-black text-slate-300 border-t border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+      <div className="max-w-7xl mx-auto px-3 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
         {/* Brand & Bio */}
         <div className="space-y-4 sm:col-span-2 md:col-span-1">
           <Link href="/" className="inline-block">
@@ -129,8 +129,8 @@ export default async function Footer() {
       </div>
 
       {/* Copyright Bottom Bar */}
-      <div className="border-t border-slate-800 py-6 text-center text-xs text-slate-400 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="border-t border-slate-800 py-6 text-center text-xs text-slate-400">
+        <div className="max-w-7xl px-3 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>
             © {new Date().getFullYear()}{" "}
             <strong className="text-white">Rakan</strong>. All rights reserved.

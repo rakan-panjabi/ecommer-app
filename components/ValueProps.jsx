@@ -18,7 +18,7 @@ export default function ValueProps() {
   ];
 
   return (
-    <section className="bg-slate-50/70 border-t border-slate-200/60">
+    <section className="bg-slate-100 border-t border-slate-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {perks.map((perk, idx) => (
           <div

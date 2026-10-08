@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import AddToCartForm from "@/components/AddToCartForm";
 import ProductCard from "@/components/ProductCard";
+import ProductImageGallery from "@/components/ProductImageGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -39,35 +40,29 @@ export default async function SingleProductPage({ params }) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12 md:space-y-16">
       {/* Product Main Section */}
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-        {/* Product Image Box */}
-        <div className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm lg:sticky lg:top-24 w-full">
-          {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              className="object-cover transition-transform duration-500 hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium text-sm">
-              No Image Available
-            </div>
-          )}
-        </div>
+        {/* Product Image Box (Client Component দিয়ে ইমেজ হ্যান্ডেল করা হয়েছে যাতে স্লো লোডিংয়ে ইউজার স্মুথ ফিল পায়) */}
+        <ProductImageGallery image={product.image} name={product.name} />
 
         {/* Product Details & Form */}
         <div className="space-y-6">
           <div>
-            <span className="inline-block px-3.5 py-1 bg-slate-100 text-slate-800 rounded-full text-xs font-bold tracking-wider uppercase mb-3 border border-slate-200">
+            <span className="inline-block px-3.5 py-1 bg-amber-400 text-slate-800 rounded-full text-xs font-bold tracking-wider uppercase mb-3 border border-slate-200">
               {product.category}
             </span>
+
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               {product.name}
             </h1>
-            <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">
-              {formatPrice(product.price)}
-            </p>
+
+            {/* Redesigned Price Box */}
+            <div className="mt-4 inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900 text-white shadow-md">
+              <span className="text-xs uppercase tracking-wider text-whtie font-semibold">
+                Price:
+              </span>
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-amber-400">
+                {formatPrice(product.price)}
+              </span>
+            </div>
           </div>
 
           <div className="border-t border-slate-100 pt-5">

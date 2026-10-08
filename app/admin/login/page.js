@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast"; // <-- টোস্ট ইম্পোর্ট করা হলো
+import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // ডেমো ইমেইল এবং পাসওয়ার্ড ইনিশিয়ালি সেট করে দেওয়া হলো
+  const [email, setEmail] = useState("admin@gmail.com");
+  const [password, setPassword] = useState("admin123");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -16,7 +17,6 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    // লগইন শুরু হওয়ার টোস্ট (অপশনাল, চাইলে রাখতে পারেন)
     const toastId = toast.loading("Signing in...");
 
     try {
@@ -31,14 +31,12 @@ export default function AdminLoginPage() {
         throw new Error(data.error || "Login failed");
       }
 
-      // সাকসেস টোস্ট
       toast.success("Login successful!", { id: toastId });
 
       router.push("/admin");
       router.refresh();
     } catch (err) {
       setError(err.message);
-      // এরর টোস্ট
       toast.error(err.message || "Invalid email or password", { id: toastId });
     } finally {
       setLoading(false);
@@ -50,7 +48,7 @@ export default function AdminLoginPage() {
       <div className="bg-white border border-slate-200 rounded-xl p-8 w-full max-w-sm shadow-sm">
         <h1 className="text-xl font-bold text-slate-900 mb-1">Admin Login</h1>
         <p className="text-sm text-slate-500 mb-6">
-          Sign in to manage your store.
+          Sign in to manage your store. (Demo Mode)
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,7 +62,7 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all text-sm"
-              placeholder="admin@example.com"
+              placeholder="admin@gmail.com"
             />
           </div>
           <div>
@@ -81,21 +79,29 @@ export default function AdminLoginPage() {
             />
           </div>
 
-          {/* ইনপুট ফিল্ডের নিচের এরর মেসেজ */}
           {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 flex justify-center items-center"
+            className="w-full py-2.5 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 flex justify-center items-center shadow-sm"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="text-xs text-slate-400 mt-6 text-center">
-          Default: admin@example.com / admin123
-        </p>
+        <div className="mt-6 p-3 bg-slate-50 rounded-lg border border-slate-100 text-center">
+          <p className="text-xs font-semibold text-slate-600 mb-0.5">
+            Demo Credentials:
+          </p>
+          <p className="text-xs text-slate-500">
+            Email:{" "}
+            <span className="font-mono text-slate-700">admin@gmail.com</span>
+          </p>
+          <p className="text-xs text-slate-500">
+            Password: <span className="font-mono text-slate-700">admin123</span>
+          </p>
+        </div>
       </div>
     </div>
   );

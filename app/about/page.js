@@ -4,24 +4,20 @@ export const metadata = { title: "About Us — Rakan" };
 
 export default function AboutPage() {
   return (
-    <div className="bg-slate-50/50 min-h-screen">
+    <div className="bg-slate-50/50">
       {/* Featured Image with Overlay Effect */}
-      <div className="relative overflow-hidden  h-[380px] sm:h-[480px] md:h-[560px] mb-8">
-        <Image
-          width={1200}
-          height={1200}
-          src="/about.jpg"
-          alt="Our team"
-          priority
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent flex items-end p-6 sm:p-10">
-          <p className="text-white font-medium text-base sm:text-xl md:text-2xl max-w-2xl leading-snug">
-            "Honest prices, fast shipping, and care in every single package."
-          </p>
+
+      <div className="max-w-7xl mx-auto px-3">
+        <div className="relative overflow-hidden h-[380px] sm:h-[480px] md:h-[560px] my-8">
+          <Image
+            fill
+            src="/about.jpg"
+            alt="Our team"
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         {/* Content Grid */}
         <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
           <div className="space-y-4 text-slate-600 leading-relaxed bg-white p-6 sm:p-10 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
